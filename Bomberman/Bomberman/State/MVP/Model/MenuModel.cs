@@ -7,5 +7,6 @@ namespace Bomberman.State.MVP.Model
 {
     class MenuModel
     {
+
     }
 }

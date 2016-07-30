@@ -6,6 +6,11 @@ using Microsoft.Xna.Framework;
 using Bomberman.State.MVP.Model;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Bomberman.GameWorld.LivingObjects;
+using Bomberman.GameWorld;
+using Bomberman.GameWorld.EnvironmentView.Wrapers;
+using Bomberman.GameWorld.Environment;
+using Bomberman.GameWorld.EnvironmentView.Visitor;
 
 namespace Bomberman.State.MVP.Presenter
 {
@@ -14,45 +19,74 @@ namespace Bomberman.State.MVP.Presenter
         private GameModel model;
         private KeyboardState previousState;
 
+        private Drawer drawer = new Drawer();
+        private LinkedList<IViewWraper> toDraw;
+
         public GamePresenter(SpriteBatch spriteBatch)
         {
-            model = new GameModel();
+            ModelCreator modelCreator = new ModelCreator();
+
             view = spriteBatch;
+            model = modelCreator.CreateGameModel();
+            
+            ViewWraperFactory factory = new ViewWraperFactory(new GameWorld.Factories.FactoriesCreator());
+            toDraw = new LinkedList<IViewWraper>();
+
+            foreach (FieldWidget field in model.Location)
+            {
+                toDraw.AddLast(factory.CreateWraper(field));
+            }
+
+            foreach (Monster creep in model.Creeps)
+            {
+                toDraw.AddLast(factory.CreateWraper(creep));
+            }
+
+            toDraw.AddLast(factory.CreateWraper(model.Bomberman));
+
+            if (model.DarkBomberman != null)
+            {
+                toDraw.AddLast(factory.CreateWraper(model.DarkBomberman));
+            }
         }
 
         public override void Draw(GameTime gameTime)
         {
-            throw new NotImplementedException();
+            foreach (IViewWraper viewWraper in toDraw)
+            {
+                viewWraper.Accept(drawer, view, gameTime);
+            }
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState, MouseState mouseState)
         {
-            if (keyboardState.IsKeyDown(Keys.W))
+            PlayerKeys playerKeys = Constants.Instance.Player1;
+
+            if (keyboardState.IsKeyDown(playerKeys.GoUpKey))
             {
-                model.Bomberman.GoUp();
+                model.BombermanGoUp(model.Bomberman, gameTime);
+            }
+            else if (keyboardState.IsKeyDown(playerKeys.GoDownKey))
+            {
+                model.BombermanGoDown(model.Bomberman, gameTime);
+            }
+            else if (keyboardState.IsKeyDown(playerKeys.GoLeftKey))
+            {
+                model.BombermanGoLeft(model.Bomberman, gameTime);
+            }
+            else if (keyboardState.IsKeyDown(playerKeys.GoRightKey))
+            {
+                model.BombermanGoRight(model.Bomberman, gameTime);
             }
 
-            if (keyboardState.IsKeyDown(Keys.S))
+            if (previousState != keyboardState && keyboardState.IsKeyDown(playerKeys.PlantBombKey))
             {
-                model.Bomberman.GoDown();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                model.Bomberman.GoLeft();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                model.Bomberman.GoRight();
-            }
-
-            if (previousState != keyboardState && keyboardState.IsKeyDown(Keys.Space))
-            {
-                model.BombermanPlantsBomb();
+                model.BombermanPlantsBomb(model.Bomberman);
             }
 
             model.Update(gameTime);
+
+            previousState = keyboardState;
         }
     }
 }

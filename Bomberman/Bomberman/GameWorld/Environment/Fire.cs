@@ -14,22 +14,33 @@ namespace Bomberman.GameWorld.Environment
         private float totalTime;
         private float burningTime = Constants.Instance.BurningTime;
 
-        public Fire(AbstraktField nextState)
+        public Fire(FieldWidget field)
         {
-            this.nextState = nextState;
+            this.field = field;
+            this.nextState = field.EmptyFieldState;
             FieldType = GameObjectType.FIRE;
         }
 
-        public override bool Update(GameTime gameTime)
+        public Fire SetNextState(AbstraktField nextState)
+        {
+            this.nextState = nextState;
+            return this;
+        }
+
+        public override void Update(GameTime gameTime)
         {
             totalTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (totalTime > burningTime)
             {
-                ReiseEvents(nextState);
+                totalTime = 0;
+                field.SetState(nextState);
             }
+        }
 
-            return true;
+        public override void Destroy()
+        {
+            totalTime = 0;
         }
 
         public override void Visit(LivingObject visitor)

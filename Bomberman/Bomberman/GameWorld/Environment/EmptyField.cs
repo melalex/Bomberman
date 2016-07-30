@@ -9,21 +9,20 @@ namespace Bomberman.GameWorld.Environment
 {
     class EmptyField : AbstraktField
     {
-        public EmptyField()
+        public EmptyField(FieldWidget field)
         {
+            this.field = field;
             FieldType = GameObjectType.EMPTY_FIELD;
         }
 
-        public override bool Update(GameTime gameTime)
+        public override void Destroy()
         {
-            ReiseEvents(new Fire(this));
-
-            return true;
+            field.SetState(field.FireState.SetNextState(field.EmptyFieldState));
         }
 
         public override void Visit(LivingObject visitor)
         {
-            throw new NotImplementedException();
+             
         }
     }
 }

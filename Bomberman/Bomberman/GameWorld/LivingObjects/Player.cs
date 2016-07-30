@@ -9,46 +9,74 @@ namespace Bomberman.GameWorld.LivingObjects
 {
     class Player : LivingObject
     {
-        private int lethalArea = Constants.Instance.DefaultLethalArea;
+        public int LethalArea { get; private set; } = Constants.Instance.DefaultLethalArea;
+
         private int bombCount = Constants.Instance.DefaultBombCount;
 
-        private Rectangle position;
-        private int velocity = Constants.Instance.DefaultVelocity;
-
-        public int XPositionOnMap
+        public Player(int x, int y, Map location, GameObjectType playerType)
         {
-            get { return position.Center.X / Constants.Instance.SideOfASprite; }
-        }
+            Position = new Rectangle(x, y, Constants.Instance.SideOfASprite, Constants.Instance.SideOfASprite);
+            Type = playerType;
+            this.Location = location;
 
-        public int YPositionOnMap
-        {
-            get { return position.Center.Y / Constants.Instance.SideOfASprite; }
-        }
-
-        public Player(int x, int y,)
-        {
-            position = new Rectangle(x, y, Constants.Instance.SideOfASprite, Constants.Instance.SideOfASprite);
+            Velocity = Constants.Instance.DefaultVelocity;
         }
 
         #region Controls
-        public void GoUp()
+        public void GoUp(GameTime gameTime)
         {
+            Rectangle next = Position;
+            int dy = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
+            next.Offset(0, -dy);
 
+            if (Location.IsPassable(XPositionOnMap, YPositionOnMap - 1) || next.Top > YPositionOnMap * Constants.Instance.SideOfASprite)
+            {
+                Position = next;
+                MyDirection = Direction.UP;
+                PositionDidChange(this);
+            }
         }
 
-        public void GoDown()
+        public void GoDown(GameTime gameTime)
         {
+            Rectangle next = Position;
+            int dy = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
+            next.Offset(0, dy);
 
+            if (Location.IsPassable(XPositionOnMap, YPositionOnMap + 1) || next.Bottom < (YPositionOnMap + 1) * Constants.Instance.SideOfASprite)
+            {
+                Position = next;
+                MyDirection = Direction.DOWN;
+                PositionDidChange(this);
+            }
         }
 
-        public void GoLeft()
+        public void GoLeft(GameTime gameTime)
         {
+            Rectangle next = Position;
+            int dx = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
+            next.Offset(-dx, 0);
 
+            if (Location.IsPassable(XPositionOnMap - 1, YPositionOnMap) || next.Left > XPositionOnMap * Constants.Instance.SideOfASprite)
+            {
+                Position = next;
+                MyDirection = Direction.LEFT;
+                PositionDidChange(this);
+            }
         }
 
-        public void GoRight()
+        public void GoRight(GameTime gameTime)
         {
+            Rectangle next = Position;
+            int dx = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
+            next.Offset(dx, 0);
 
+            if (Location.IsPassable(XPositionOnMap + 1, YPositionOnMap) || next.Right < (XPositionOnMap + 1) * Constants.Instance.SideOfASprite)
+            {
+                Position = next;
+                MyDirection = Direction.RIGHT;
+                PositionDidChange(this);
+            }
         }
 
         #endregion Controls
@@ -57,12 +85,12 @@ namespace Bomberman.GameWorld.LivingObjects
 
         public void IncreaseSpeed()
         {
-
+            Velocity++;
         }
 
         public void IncreaseLethalArea()
         {
-            lethalArea++;
+            LethalArea++;
         }
 
         public void IncreaseBombCount()
@@ -72,24 +100,34 @@ namespace Bomberman.GameWorld.LivingObjects
 
         #endregion powerups
 
-        public Bomb CreateBomb(FieldWidget field)
+        public FieldWidget CreateBomb()
         {
-            Bomb newBomb = null;
-            if (bombCount > 0)
+            FieldWidget fieldOfNewBomb = null;
+            if (bombCount > 0 && Location[YPositionOnMap, XPositionOnMap].FieldType != GameObjectType.BOMB)
             {
-                newBomb = new Bomb(lethalArea, field);
+                fieldOfNewBomb = Location[YPositionOnMap, XPositionOnMap];
+                Bomb newBomb = new Bomb(LethalArea, fieldOfNewBomb);
+                fieldOfNewBomb.SetState(newBomb);
+                fieldOfNewBomb.FieldStateChangeHendler += bombExplosed;
+                bombCount--;
             }
-            return newBomb;
+            return fieldOfNewBomb;
+        }
+
+        private void bombExplosed(FieldWidget field)
+        {
+            bombCount++;
+            field.FieldStateChangeHendler -= bombExplosed;
         }
 
         public override void EatPowerup(Enhance enhanceMethod)
         {
-            throw new NotImplementedException();
+            enhanceMethod(this);
         }
 
         public override void Kill()
         {
-            throw new NotImplementedException();
+
         }
     }
 }

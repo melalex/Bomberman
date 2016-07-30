@@ -11,20 +11,16 @@ namespace Bomberman.GameWorld
     {
         private FieldWidget[,] location = new FieldWidget[Constants.Instance.GameMapHeight, Constants.Instance.GameMapWidth];
 
-        public FieldWidget GetObjectAt(int x, int y)
-        {
-            return location[y, x];
-        }
         public FieldWidget this[int i, int j]
         {
             get { return location[i, j]; } 
         }
 
-        public void SetMap(int[,] map)
+        public Map(int[,] map)
         {
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < Constants.Instance.GameMapHeight; i++)
             {
-                for (int j = 0; j < 20; j++)
+                for (int j = 0; j < Constants.Instance.GameMapWidth; j++)
                 {
                     location[i, j] = new FieldWidget(j, i);
                     switch (map[i, j])
@@ -46,9 +42,20 @@ namespace Bomberman.GameWorld
             }
         }
 
-        public FieldWidget GetFieldByPosition(int x, int y)
+        public bool IsPassable(int j, int i)
         {
-            return location[y / Constants.Instance.SideOfASprite, x / Constants.Instance.SideOfASprite];
+            bool result = true;
+
+            if (j < 0 || j > Constants.Instance.GameMapWidth ||
+                i < 0 || i > Constants.Instance.GameMapHeight ||
+                location[i, j].FieldType == GameObjectType.BREAKABLE_WALL ||
+                location[i, j].FieldType == GameObjectType.UNBREAKABLE_WALL ||
+                location[i, j].FieldType == GameObjectType.BOMB)
+            {
+                result = false;
+            }
+
+            return result;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

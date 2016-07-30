@@ -6,25 +6,24 @@ using System.Linq;
 using System.Text;
 
 namespace Bomberman.GameWorld.Environment
-{
-    delegate void Notification(AbstraktField field);
-
-    abstract class AbstraktField : AbstractGameObject
+{ 
+    abstract class AbstraktField
     {
-        public event Notification NotificationHendler;
+        private WeakReference _field;
+        protected FieldWidget field
+        {
+            set { _field = new WeakReference(value); }
+            get { return _field.Target as FieldWidget; }
+        }
         
         public GameObjectType FieldType { get; protected set; }
 
-        protected void ReiseEvents(AbstraktField eventArgument)
+        virtual public void Update(GameTime gameTime)
         {
-            Notification hendler = NotificationHendler;
-            if (hendler != null)
-            {
-                hendler(eventArgument);
-            }
+            Destroy();
         }
 
-        abstract public bool Update(GameTime gameTime);
+        abstract public void Destroy();
 
         abstract public void Visit(LivingObject visitor);
     }

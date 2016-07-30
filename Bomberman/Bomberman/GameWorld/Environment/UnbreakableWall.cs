@@ -9,14 +9,15 @@ namespace Bomberman.GameWorld.Environment
 {
     class UnbreakableWall : AbstraktField
     {
-        public UnbreakableWall()
+        public UnbreakableWall(FieldWidget field)
         {
+            this.field = field;
             FieldType = GameObjectType.UNBREAKABLE_WALL;
         }
 
-        public override bool Update(GameTime gameTime)
-        {
-            return false;
+        public override void Destroy()
+        { 
+
         }
 
         public override void Visit(LivingObject visitor)

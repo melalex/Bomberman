@@ -9,32 +9,35 @@ namespace Bomberman.GameWorld.Environment
 {
     class Bomb : AbstraktField
     {
-        public int LethalArea { get; private set; }
+        private float totalTime = 0;
+        private float detonationTime = Constants.Instance.DetonationTime;
 
-        private float totalTime;
-        private float dedetonationTime = Constants.Instance.DedetonationTime;
-
-        public Bomb(int lethalArea)
+        public Bomb(int lethalArea, FieldWidget field)
         {
             FieldType = GameObjectType.BOMB;
-            LethalArea = lethalArea;
+            this.field = field;
         }
 
-        public override bool Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             totalTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (totalTime > dedetonationTime)
+            if (totalTime > detonationTime)
             {
-                ReiseEvents(new EmptyField());
+                totalTime = 0;
+                field.BombExploded();
             }
-
-            return false;
+        }
+         
+        public override void Destroy()
+        {
+            totalTime = detonationTime;
         }
 
         public override void Visit(LivingObject visitor)
         {
-            throw new NotImplementedException();
+            
         }
+
     }
 }

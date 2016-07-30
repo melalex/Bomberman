@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Bomberman.State;
+using Bomberman.visualizationGameWorld;
 
 namespace Bomberman
 {
@@ -18,6 +20,20 @@ namespace Bomberman
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        private GameWidget _gameWidget;
+        GameWidget gameWidget
+        {
+            get
+            {
+                if (_gameWidget == null)
+                {
+                    _gameWidget = new GameWidget(spriteBatch);
+                    _gameWidget.SetCurrentPresenter(gameWidget.GamePresenter);
+                }
+                return _gameWidget;
+            }
+        }
 
         public Game1()
         {
@@ -33,8 +49,7 @@ namespace Bomberman
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
+            
             base.Initialize();
         }
 
@@ -45,9 +60,9 @@ namespace Bomberman
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice); 
 
-            // TODO: use this.Content to load your game content here
+            SpritePool.Instance.InitSpritePool(Content);
         }
 
         /// <summary>
@@ -56,7 +71,7 @@ namespace Bomberman
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
         /// <summary>
@@ -66,11 +81,10 @@ namespace Bomberman
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            var keyboardState = Keyboard.GetState();
+            var mouseState = Mouse.GetState();
 
-            // TODO: Add your update logic here
+            gameWidget.Update(gameTime, keyboardState, mouseState);
 
             base.Update(gameTime);
         }
@@ -83,7 +97,11 @@ namespace Bomberman
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            gameWidget.Draw(gameTime);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }

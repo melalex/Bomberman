@@ -9,37 +9,36 @@ namespace Bomberman.GameWorld.Environment
 {
     class BreakableWall : AbstraktField
     {
-        public BreakableWall()
+        public BreakableWall(FieldWidget field)
         {
+            this.field = field;
             FieldType = GameObjectType.BREAKABLE_WALL;
         }
 
-        public override bool Update(GameTime gameTime)
+        public override void Destroy()
         {
             Random randomState = new Random();
             AbstraktField nextState;
             int state = randomState.Next(100);
 
             if (state < 20)
-            { 
-                nextState = new Fire(new Powerup((Player player) => player.IncreaseBombCount(), GameObjectType.BOMB_POWERUP));
+            {
+                nextState = field.FireState.SetNextState(field.LethalAreaBoostState);
             }
             else if (state < 40)
             {
-                nextState = new Fire(new Powerup((Player player) => player.IncreaseSpeed(), GameObjectType.SPEED_POWERUP));
+                nextState = field.FireState.SetNextState(field.BombCountBoostState);
             }
             else if (state < 60)
             {
-                nextState = new Fire(new Powerup((Player player) => player.IncreaseLethalArea(), GameObjectType.FIRE_POWERUP));
+                nextState = field.FireState.SetNextState(field.SpeedBoostState);
             }
             else
             {
-                nextState = new Fire(new EmptyField());
+                nextState = field.FireState.SetNextState(field.EmptyFieldState);
             }
 
-            ReiseEvents(nextState);
-
-            return false;
+            field.SetState(nextState);
         }
 
         public override void Visit(LivingObject player)
