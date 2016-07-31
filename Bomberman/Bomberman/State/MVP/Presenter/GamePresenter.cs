@@ -18,19 +18,26 @@ namespace Bomberman.State.MVP.Presenter
     {
         private GameModel model;
         private KeyboardState previousState;
+        private bool isOver = false;
+        private string result;
 
         private Drawer drawer = new Drawer();
         private LinkedList<IViewWraper> toDraw;
 
-        public GamePresenter(SpriteBatch spriteBatch)
+        public GamePresenter(SpriteBatch spriteBatch, GameWidget game)
         {
-            ModelCreator modelCreator = new ModelCreator();
-
             view = spriteBatch;
-            model = modelCreator.CreateGameModel();
-            
-            ViewWraperFactory factory = new ViewWraperFactory(new GameWorld.Factories.FactoriesCreator());
+
+            this.game = game;
+
             toDraw = new LinkedList<IViewWraper>();
+        }
+
+        public GamePresenter SetModel(GameModel gameModel)
+        {
+            model = gameModel;
+            isOver = false;
+            ViewWraperFactory factory = new ViewWraperFactory(new GameWorld.Factories.FactoriesCreator());
 
             foreach (FieldWidget field in model.Location)
             {
@@ -48,6 +55,28 @@ namespace Bomberman.State.MVP.Presenter
             {
                 toDraw.AddLast(factory.CreateWraper(model.DarkBomberman));
             }
+
+            model.GameOverHandler += gameOver;
+
+            return this;
+        }
+
+        private void gameOver()
+        {
+            isOver = true;
+
+            if (model.Bomberman.Alive)
+            {
+                result = "Player 1 Won!!!";
+            }
+            else if (model.DarkBomberman != null && model.DarkBomberman.Alive)
+            {
+                result = "Player 2 Won!!!";
+            }
+            else
+            {
+                result = "Monsters Won!!!";
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -56,35 +85,75 @@ namespace Bomberman.State.MVP.Presenter
             {
                 viewWraper.Accept(drawer, view, gameTime);
             }
+
+            if (isOver)
+            {
+                view.DrawString(Fonts.Instance.ResultFont, result, new Vector2(10, 10), Color.Red);
+            }
+
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState, MouseState mouseState)
         {
-            PlayerKeys playerKeys = Constants.Instance.Player1;
+            if (!isOver)
+            {
+                PlayerKeys player1Keys = Constants.Instance.Player1;
+                PlayerKeys player2Keys = Constants.Instance.Player2;
 
-            if (keyboardState.IsKeyDown(playerKeys.GoUpKey))
-            {
-                model.BombermanGoUp(model.Bomberman, gameTime);
-            }
-            else if (keyboardState.IsKeyDown(playerKeys.GoDownKey))
-            {
-                model.BombermanGoDown(model.Bomberman, gameTime);
-            }
-            else if (keyboardState.IsKeyDown(playerKeys.GoLeftKey))
-            {
-                model.BombermanGoLeft(model.Bomberman, gameTime);
-            }
-            else if (keyboardState.IsKeyDown(playerKeys.GoRightKey))
-            {
-                model.BombermanGoRight(model.Bomberman, gameTime);
+                if (keyboardState.IsKeyDown(player1Keys.GoUpKey))
+                {
+                    model.BombermanGoUp(model.Bomberman, gameTime);
+                }
+                else if (keyboardState.IsKeyDown(player1Keys.GoDownKey))
+                {
+                    model.BombermanGoDown(model.Bomberman, gameTime);
+                }
+                else if (keyboardState.IsKeyDown(player1Keys.GoLeftKey))
+                {
+                    model.BombermanGoLeft(model.Bomberman, gameTime);
+                }
+                else if (keyboardState.IsKeyDown(player1Keys.GoRightKey))
+                {
+                    model.BombermanGoRight(model.Bomberman, gameTime);
+                }
+
+                if (previousState != keyboardState && keyboardState.IsKeyDown(player1Keys.PlantBombKey))
+                {
+                    model.BombermanPlantsBomb(model.Bomberman);
+                }
+
+                if (model.DarkBomberman != null)
+                {
+                    if (keyboardState.IsKeyDown(player2Keys.GoUpKey))
+                    {
+                        model.BombermanGoUp(model.DarkBomberman, gameTime);
+                    }
+                    else if (keyboardState.IsKeyDown(player2Keys.GoDownKey))
+                    {
+                        model.BombermanGoDown(model.DarkBomberman, gameTime);
+                    }
+                    else if (keyboardState.IsKeyDown(player2Keys.GoLeftKey))
+                    {
+                        model.BombermanGoLeft(model.DarkBomberman, gameTime);
+                    }
+                    else if (keyboardState.IsKeyDown(player2Keys.GoRightKey))
+                    {
+                        model.BombermanGoRight(model.DarkBomberman, gameTime);
+                    }
+
+                    if (previousState != keyboardState && keyboardState.IsKeyDown(player2Keys.PlantBombKey))
+                    {
+                        model.BombermanPlantsBomb(model.DarkBomberman);
+                    }
+                }
+                 
+                model.Update(gameTime);
             }
 
-            if (previousState != keyboardState && keyboardState.IsKeyDown(playerKeys.PlantBombKey))
+            if (previousState != keyboardState && keyboardState.IsKeyDown(Keys.Escape))
             {
-                model.BombermanPlantsBomb(model.Bomberman);
+                game.SetCurrentPresenter(game.MenuPresenter);
             }
-
-            model.Update(gameTime);
 
             previousState = keyboardState;
         }

@@ -59,7 +59,7 @@ namespace Bomberman.GameWorld.EnvironmentView.Visitor
         }
 
         public void visit(MoveableView element, SpriteBatch spriteBatch, GameTime gameTime)
-        {
+        { 
             Texture2D texture = null;
             int frameCount = 0;
             GetFrame getFrame = null;

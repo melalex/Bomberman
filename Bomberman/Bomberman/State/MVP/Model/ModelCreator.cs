@@ -9,7 +9,7 @@ namespace Bomberman.State.MVP.Model
 {
     class ModelCreator
     {
-        public GameModel CreateGameModel()
+        public GameModel CreateTwoPlayersGameModel()
         {
             Map location = new Map(Constants.Instance.SimpleMap);
 
@@ -18,7 +18,22 @@ namespace Bomberman.State.MVP.Model
             model.Bomberman = new Player(3 * Constants.Instance.SideOfASprite, 3 * Constants.Instance.SideOfASprite, location, GameObjectType.PLAYER1);
             model.DarkBomberman = new Player(6 * Constants.Instance.SideOfASprite, 3 * Constants.Instance.SideOfASprite, location, GameObjectType.PLAYER2);
 
-            model.Creeps = new Monster[0];
+            model.Creeps = new List<Monster>();
+
+            return model;
+        }
+
+        public GameModel CreateOnePlayerGameModel()
+        {
+            Map location = new Map(Constants.Instance.SimpleMap);
+
+            GameModel model = new GameModel(location);
+
+            model.Bomberman = new Player(3 * Constants.Instance.SideOfASprite, 3 * Constants.Instance.SideOfASprite, location, GameObjectType.PLAYER1);
+
+            List<Monster> creepsList = new List<Monster>();
+            creepsList.Add(new Monster(16 * Constants.Instance.SideOfASprite, 3 * Constants.Instance.SideOfASprite, location));
+            model.Creeps = creepsList;
 
             return model;
         }

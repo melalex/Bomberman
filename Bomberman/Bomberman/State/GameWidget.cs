@@ -9,10 +9,16 @@ using System.Text;
 
 namespace Bomberman.State
 {
+    delegate void Exit();
+
     class GameWidget
     {
+        private KeyboardState previousState;
+
         private AbstractPresenter currentPresenter;
         private SpriteBatch spriteBatch;
+
+        public Exit ExitGame;
 
         private MenuPresenter _menuPresenter;
         private GamePresenter _gamePresenter;
@@ -24,7 +30,7 @@ namespace Bomberman.State
             {
                 if (_menuPresenter == null)
                 {
-                    _menuPresenter = new MenuPresenter();
+                    _menuPresenter = new MenuPresenter(spriteBatch, this);
                 }
                 return _menuPresenter;
             }
@@ -35,7 +41,7 @@ namespace Bomberman.State
             {
                 if (_gamePresenter == null)
                 {
-                    _gamePresenter = new GamePresenter(spriteBatch);
+                    _gamePresenter = new GamePresenter(spriteBatch, this);
                 }
                 return _gamePresenter;
             }
@@ -52,9 +58,10 @@ namespace Bomberman.State
             }
         }
 
-        public GameWidget(SpriteBatch spriteBatch)
+        public GameWidget(SpriteBatch spriteBatch, Exit exitGame)
         { 
             this.spriteBatch = spriteBatch;
+            ExitGame = exitGame;
         }
 
         public void SetCurrentPresenter(AbstractPresenter newState)
@@ -64,7 +71,12 @@ namespace Bomberman.State
 
         public void Update(GameTime gameTime, KeyboardState keyboardState, MouseState mouseState)
         {
-            currentPresenter.Update(gameTime, keyboardState, mouseState);
+            if (!(previousState == keyboardState && keyboardState.IsKeyDown(Keys.Escape)))
+            { 
+                currentPresenter.Update(gameTime, keyboardState, mouseState);
+            }
+
+            previousState = keyboardState;
         }
 
         public void Draw(GameTime gameTime)

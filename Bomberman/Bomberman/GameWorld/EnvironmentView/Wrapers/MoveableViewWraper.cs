@@ -12,6 +12,8 @@ namespace Bomberman.GameWorld.EnvironmentView.Wrapers
 {
     class MoveableViewWraper : IViewWraper
     {
+        private bool alive = true;
+
         private MoveableView view;
 
         public MoveableViewWraper(AbstractView view)
@@ -21,17 +23,28 @@ namespace Bomberman.GameWorld.EnvironmentView.Wrapers
 
         public void Accept(IVisitor drawer, SpriteBatch spriteBatch, GameTime gameTime)
         {
-            view.Accept(drawer, spriteBatch, gameTime);
+            if (alive)
+            {
+                view.Accept(drawer, spriteBatch, gameTime);
+            }
         }
 
         public void ViewChangePosition(LivingObject sender)
         {
-            Rectangle newPosition = sender.Position;
-            newPosition.Offset(Constants.Instance.XGameMapPosition, Constants.Instance.YGameMapPosition);
-            view.Position = newPosition;
+            if (sender.Alive)
+            {
+                Rectangle newPosition = sender.Position;
+                newPosition.Offset(Constants.Instance.XGameMapPosition, Constants.Instance.YGameMapPosition);
+                view.Position = newPosition;
 
-            view.MyDirection = sender.MyDirection;
-            view.TimeForFrame = sender.Velocity;
+                view.MyDirection = sender.MyDirection;
+                view.TimeForFrame = sender.Velocity;
+            }
+            else
+            {
+                sender.PositionChangeHendler -= ViewChangePosition;
+                alive = false;
+            }
         }
     }
 }

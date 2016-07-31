@@ -9,8 +9,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Bomberman.State.MVP.Presenter
 {
-    abstract class AbstractPresenter
-    { 
+    abstract class AbstractPresenter 
+    {
+        private WeakReference _game;
+        protected GameWidget game
+        {
+            set { _game = new WeakReference(value); }
+            get { return _game.Target as GameWidget; }
+        }
+
         protected SpriteBatch view;
 
         public abstract void Draw(GameTime gameTime);

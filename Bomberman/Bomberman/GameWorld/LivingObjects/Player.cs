@@ -22,65 +22,6 @@ namespace Bomberman.GameWorld.LivingObjects
             Velocity = Constants.Instance.DefaultVelocity;
         }
 
-        #region Controls
-        public void GoUp(GameTime gameTime)
-        {
-            Rectangle next = Position;
-            int dy = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
-            next.Offset(0, -dy);
-
-            if (Location.IsPassable(XPositionOnMap, YPositionOnMap - 1) || next.Top > YPositionOnMap * Constants.Instance.SideOfASprite)
-            {
-                Position = next;
-                MyDirection = Direction.UP;
-                PositionDidChange(this);
-            }
-        }
-
-        public void GoDown(GameTime gameTime)
-        {
-            Rectangle next = Position;
-            int dy = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
-            next.Offset(0, dy);
-
-            if (Location.IsPassable(XPositionOnMap, YPositionOnMap + 1) || next.Bottom < (YPositionOnMap + 1) * Constants.Instance.SideOfASprite)
-            {
-                Position = next;
-                MyDirection = Direction.DOWN;
-                PositionDidChange(this);
-            }
-        }
-
-        public void GoLeft(GameTime gameTime)
-        {
-            Rectangle next = Position;
-            int dx = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
-            next.Offset(-dx, 0);
-
-            if (Location.IsPassable(XPositionOnMap - 1, YPositionOnMap) || next.Left > XPositionOnMap * Constants.Instance.SideOfASprite)
-            {
-                Position = next;
-                MyDirection = Direction.LEFT;
-                PositionDidChange(this);
-            }
-        }
-
-        public void GoRight(GameTime gameTime)
-        {
-            Rectangle next = Position;
-            int dx = Velocity * gameTime.ElapsedGameTime.Milliseconds / 100;
-            next.Offset(dx, 0);
-
-            if (Location.IsPassable(XPositionOnMap + 1, YPositionOnMap) || next.Right < (XPositionOnMap + 1) * Constants.Instance.SideOfASprite)
-            {
-                Position = next;
-                MyDirection = Direction.RIGHT;
-                PositionDidChange(this);
-            }
-        }
-
-        #endregion Controls
-
         #region powerups
 
         public void IncreaseSpeed()
@@ -103,7 +44,7 @@ namespace Bomberman.GameWorld.LivingObjects
         public FieldWidget CreateBomb()
         {
             FieldWidget fieldOfNewBomb = null;
-            if (bombCount > 0 && Location[YPositionOnMap, XPositionOnMap].FieldType != GameObjectType.BOMB)
+            if (Alive && bombCount > 0 && Location[YPositionOnMap, XPositionOnMap].FieldType != GameObjectType.BOMB)
             {
                 fieldOfNewBomb = Location[YPositionOnMap, XPositionOnMap];
                 Bomb newBomb = new Bomb(LethalArea, fieldOfNewBomb);
@@ -127,7 +68,9 @@ namespace Bomberman.GameWorld.LivingObjects
 
         public override void Kill()
         {
-
+            Alive = false;
+            PositionDidChange(this);
+            CharacterDidDie(this);
         }
     }
 }

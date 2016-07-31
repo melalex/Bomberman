@@ -45,8 +45,11 @@ namespace Bomberman
         public int GameMapHeight { get; } = 15;
         public int GameMapWidth { get; } = 20;
 
-        public int XGameMapPosition { get; } = 0;
-        public int YGameMapPosition { get; } = 0;
+        public int PreferredBackBufferWidth { get; } = 740;
+        public int PreferredBackBufferHeight { get; } = 520;
+
+        public int XGameMapPosition { get; } = 50;
+        public int YGameMapPosition { get; } = 20;
 
         public float BurningTime { get; } = 1f;
         public float DetonationTime { get; } = 3f;

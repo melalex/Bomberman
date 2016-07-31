@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Bomberman.State;
 using Bomberman.visualizationGameWorld;
+using Microsoft.Xna.Framework.Design;
 
 namespace Bomberman
 {
@@ -28,8 +29,8 @@ namespace Bomberman
             {
                 if (_gameWidget == null)
                 {
-                    _gameWidget = new GameWidget(spriteBatch);
-                    _gameWidget.SetCurrentPresenter(gameWidget.GamePresenter);
+                    _gameWidget = new GameWidget(spriteBatch, this.Exit);
+                    _gameWidget.SetCurrentPresenter(gameWidget.MenuPresenter);
                 }
                 return _gameWidget;
             }
@@ -38,6 +39,9 @@ namespace Bomberman
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = Constants.Instance.PreferredBackBufferWidth;
+            graphics.PreferredBackBufferHeight = Constants.Instance.PreferredBackBufferHeight;
+
             Content.RootDirectory = "Content";
         }
 
@@ -60,9 +64,11 @@ namespace Bomberman
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice); 
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            gameWidget.MenuPresenter.InitTextures(Content);
             SpritePool.Instance.InitSpritePool(Content);
+            Fonts.Instance.InitFonts(Content);
         }
 
         /// <summary>
@@ -95,7 +101,7 @@ namespace Bomberman
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(new Color(75, 111, 78));
 
             spriteBatch.Begin();
 

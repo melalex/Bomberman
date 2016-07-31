@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Fonts.cs" />
     <Compile Include="GameWorld\EnvironmentView\Views\AbstractView.cs" />
     <Compile Include="GameWorld\EnvironmentView\Views\DinamicFieldView.cs" />
     <Compile Include="GameWorld\EnvironmentView\Views\MoveableView.cs" />

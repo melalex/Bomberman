@@ -11,14 +11,55 @@ namespace Bomberman.State.MVP.Model
 {
     class GameModel : AbstractModel
     {
+        public event Action GameOverHandler;
+
         private HashSet<FieldWidget> toUpdate = new HashSet<FieldWidget>();
 
         public Map Location { get; }
 
-        public Player Bomberman { get; set; }
-        public Player DarkBomberman { get; set; }
-        public Monster[] Creeps { get; set; }
+        private Player _bomberman;
+        private Player _darkBomberman;
+        private List<Monster> _creeps;
 
+        public Player Bomberman
+        {
+            get
+            {
+                return _bomberman;
+            }
+            set
+            {
+                _bomberman = value;
+                _bomberman.CharacterDidDieHendler += characterDidDieHendler;
+            }
+        }
+        public Player DarkBomberman
+        {
+            get
+            {
+                return _darkBomberman;
+            }
+            set
+            {
+                _darkBomberman = value;
+                _darkBomberman.CharacterDidDieHendler += characterDidDieHendler;
+            }
+        }
+        public List<Monster> Creeps
+        {
+            get
+            {
+                return _creeps;
+            }
+            set
+            {
+                _creeps = value;
+                foreach (Monster creep in _creeps)
+                {
+                    creep.CharacterDidDieHendler += characterDidDieHendler;
+                }
+            }
+        }
         public GameModel(Map location)
         {
             this.Location = location;
@@ -139,6 +180,8 @@ namespace Bomberman.State.MVP.Model
             }
         }
 
+        #endregion bombermanControls
+
         private void BombDidExplose(FieldWidget field)
         {
             toUpdate.Remove(field);
@@ -165,44 +208,42 @@ namespace Bomberman.State.MVP.Model
             }
         }
 
-        #endregion bombermanControls
-
-        #region darkBombermanControls
-
-        public void DarkBombermanGoUp()
+         
+        private void characterDidDieHendler(LivingObject sender)
         {
+            sender.CharacterDidDieHendler -= characterDidDieHendler;
+            if (sender.Type == GameObjectType.MONSTER)
+            {
+                Creeps.Remove(sender as Monster);
 
+                if (Creeps.Count == 0)
+                {
+                    GameOverHandler();
+                }
+            }
+            else
+            {
+                GameOverHandler();
+            }
         }
-
-        public void DarkBombermanGoDown()
-        {
-
-        }
-
-        public void DarkBombermanGoLeft()
-        {
-
-        }
-
-        public void DarkBombermanGoRight()
-        {
-
-        }
-
-        public void DarkBombermanPlantsBomb()
-        {
-
-        }
-
-        #endregion bombermanControls
 
 
         public override void Update(GameTime gameTime)
         {
-            foreach (Monster creep in Creeps)
+            foreach (Monster creep in Creeps.ToArray())
             {
                 creep.Update(gameTime);
                 Location[creep.YPositionOnMap, creep.XPositionOnMap].Visit(creep);
+
+                if (creep.XPositionOnMap == Bomberman.XPositionOnMap && creep.YPositionOnMap == Bomberman.YPositionOnMap)
+                {
+                    Bomberman.Kill();
+                }
+
+                if (DarkBomberman != null && creep.XPositionOnMap == DarkBomberman.XPositionOnMap && creep.YPositionOnMap == DarkBomberman.YPositionOnMap)
+                {
+                    DarkBomberman.Kill();
+                }
             }
             
             foreach (FieldWidget field in toUpdate.ToArray())
