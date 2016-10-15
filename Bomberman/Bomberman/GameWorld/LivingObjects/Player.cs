@@ -13,9 +13,9 @@ namespace Bomberman.GameWorld.LivingObjects
 
         private int bombCount = Constants.Instance.DefaultBombCount;
 
-        public Player(int x, int y, Map location, GameObjectType playerType)
+        public Player(Rectangle position, Map location, GameObjectType playerType)
         {
-            Position = new Rectangle(x, y, Constants.Instance.SideOfASprite, Constants.Instance.SideOfASprite);
+            Position = position;
             Type = playerType;
             this.Location = location;
 

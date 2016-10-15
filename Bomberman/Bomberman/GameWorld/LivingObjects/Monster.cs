@@ -10,9 +10,9 @@ namespace Bomberman.GameWorld.LivingObjects
     class Monster : LivingObject
     {
 
-        public Monster(int x, int y, Map location)
+        public Monster(Rectangle position, Map location)
         {
-            Position = new Rectangle(x, y, Constants.Instance.SideOfASprite, Constants.Instance.SideOfASprite);
+            Position = position;
             Type = GameObjectType.MONSTER;
             this.Location = location;
 

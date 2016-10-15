@@ -104,9 +104,11 @@
     <Compile Include="GameWorld\Factories\MonsterFactory.cs.cs" />
     <Compile Include="GameWorld\Factories\PlayerFactory.cs" />
     <Compile Include="GameWorld\Factories\UnbreakableWallFactory.cs" />
+    <Compile Include="GameWorld\GameMapInformation.cs" />
     <Compile Include="GameWorld\LivingObjects\LivingObject.cs" />
     <Compile Include="GameWorld\LivingObjects\Monster.cs" />
     <Compile Include="GameWorld\LivingObjects\Player.cs" />
+    <Compile Include="GameWorld\MapsContainer.cs" />
     <Compile Include="GameWorld\Visualization\AbstractSprite.cs" />
     <Compile Include="GameWorld\Visualization\Animated\Character\AnimatedCharacter.cs" />
     <Compile Include="GameWorld\Visualization\Animated\Character\AnimatedCharacterCreator.cs" />

@@ -24,6 +24,8 @@ namespace Bomberman.State.MVP.Presenter
         private Drawer drawer = new Drawer();
         private LinkedList<IViewWraper> toDraw;
 
+        private ModelCreator modelCreator = new ModelCreator();
+
         public GamePresenter(SpriteBatch spriteBatch, GameWidget game)
         {
             view = spriteBatch;
@@ -148,6 +150,20 @@ namespace Bomberman.State.MVP.Presenter
                 }
                  
                 model.Update(gameTime);
+            }
+            else
+            {
+                if (previousState != keyboardState && keyboardState.IsKeyDown(Keys.Enter))
+                {
+                    if (model.DarkBomberman == null)
+                    {
+                        SetModel(modelCreator.CreateOnePlayerGameModel());
+                    }
+                    else
+                    {
+                        SetModel(modelCreator.CreateTwoPlayersGameModel());
+                    }
+                }
             }
 
             if (previousState != keyboardState && keyboardState.IsKeyDown(Keys.Escape))

@@ -17,9 +17,9 @@ namespace Bomberman.State.MVP.Model
 
         public Map Location { get; }
 
-        private Player _bomberman;
-        private Player _darkBomberman;
-        private List<Monster> _creeps;
+        private Player _bomberman = null;
+        private Player _darkBomberman = null;
+        private List<Monster> _creeps= null;
 
         public Player Bomberman
         {
